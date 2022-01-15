@@ -1,0 +1,36 @@
+version: '3'
+
+services:
+
+  web:
+    image: codxio/emoncms_arm64:1.0
+    container_name: EmonCMS
+    env_file:
+      - 'default.docker-env'   
+    volumes:
+      - ./EmonCMS/Data:/var/www/emoncms
+      - ./EmonCMS/PHP/php-fina:/var/opt/emoncms/phpfina
+      - ./EmonCMS/PHP/php-time-series:/var/opt/emoncms/phptimeseries
+    links:
+      - redis
+    ports:
+      - 8401:80
+    restart: always
+    
+  redis:
+    image: redis:5
+    container_name: EmonCMS-RD
+    logging:
+      driver: json-file
+      options:
+        max-size: "10m"
+    env_file:
+      - 'default.docker-env'
+    volumes:
+      - ./EmonCMS/RS:/data
+    restart: always
+    
+networks:
+  default:
+    external:
+      name: home-lab
